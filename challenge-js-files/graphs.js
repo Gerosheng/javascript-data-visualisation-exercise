@@ -1,10 +1,15 @@
 import Chart from 'chart.js/auto';
 
+/* Insert chart CDN script in document */ 
+const chartCDNScript = document.createElement("script");
+chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js" 
+/* "https://cdn.jsdelivr.net/npm/chart.js" */;
+
+
 /* Inline data section */
 
-/* Retrieving "table1" data */
-
 (()=>{
+/* Retrieving "table1" data */
 
     const dataTable01 = [];
     const table01 = document.getElementById("table1");
@@ -51,11 +56,6 @@ import Chart from 'chart.js/auto';
         console.log("One or both of the specified elements not found.");
     }
 
-    /* Insert chart CDN script in document */ 
-    const chartCDNScript = document.createElement("script");
-    chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js" 
-    /* "https://cdn.jsdelivr.net/npm/chart.js" */;
-
     const body = document.body;
     const scriptElement = document.querySelector('script[src="graphs.js"]');
 
@@ -90,7 +90,9 @@ import Chart from 'chart.js/auto';
             },
         });
 })();
-/* table 2 */
+
+
+/* Retrieving "table2" data */
 (()=>{
     const dataTable02 = [];
     const table02 = document.getElementById("table2");
@@ -174,4 +176,75 @@ import Chart from 'chart.js/auto';
         }
         return color;
       }
+})();
+
+(()=>{
+    const canvasRemote = document.createElement("canvas");
+    canvasRemote.id = "canvasRemote";
+
+    const containerDivRemote = document.createElement("div");
+    containerDivRemote.id = "chartRemoteContainer";
+
+    const firstHeading = document.getElementById("firstHeading")
+    const parentElement = firstHeading.parentNode;
+
+    if (firstHeading && parentElement) {
+        parentElement.insertBefore(containerDivRemote, firstHeading.nextSibling);
+        containerDivRemote.appendChild(canvasRemote);
+    } else {
+        console.log("One or both of the specified elements not found.");
+    };
+
+    let dataPoints = [];
+
+    const ctx = canvasRemote.getContext("2d");
+    const chartRemote = new Chart(ctx, {
+        type: "line",
+        data: {
+            datasets: [
+                {
+                    label: "Live Data",
+                    data: dataPoints,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    fill: false,
+                },
+            ],
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Live Chart with dataPoints from External JSON",
+            },
+            scales: {
+                x: {
+                    type: "linear",
+                    position: "bottom",
+                },
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        },
+    });
+
+    // Function to update the Chart.js chart
+    function updateChart() {
+        $.getJSON("/api" + (dataPoints.length + 1) + "&ystart=" + (dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].y : 0) + "&length=1&type=json", function (data) {
+            $.each(data, function (key, value) {
+                dataPoints.push({
+                    x: parseInt(value[0]),
+                    y: parseInt(value[1]),
+                });
+            });
+            chartRemote.data.datasets[0].data = dataPoints;
+            chartRemote.update();
+            setTimeout(function () {
+                updateChart();
+            }, 1000);
+        });
+    }
+
+    // Start updating the chart with data
+    updateChart();
+
 })();
