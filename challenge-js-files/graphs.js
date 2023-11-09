@@ -73,7 +73,7 @@ chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/char
             return {
                 label: country01.label,
                 data: country01.data,
-                backgroundColor: 'rgba(0, 0, 255, 0.5)', // Adjust color as needed
+                backgroundColor: 'rgba(0, 0, 255, 0.5)',
                 borderWidth: 1,
             };
         }),
@@ -197,7 +197,7 @@ chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/char
 
     let dataPoints = [];
 
-    const ctx = canvasRemote.getContext("2d");
+    const ctx = canvasRemote;
     const chartRemote = new Chart(ctx, {
         type: "line",
         data: {
@@ -227,18 +227,21 @@ chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/char
         },
     });
 
+
     // Function to update the Chart.js chart
     function updateChart() {
-        $.getJSON("/api" + (dataPoints.length + 1) + "&ystart=" + (dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].y : 0) + "&length=1&type=json", function (data) {
+        $.getJSON("/api", function (data) {
             $.each(data, function (key, value) {
-                if (dataPoints.length === 0 || value[0] > dataPoints[dataPoints.length - 1].x) {
-                dataPoints.push({
-                    x: parseInt(value[0]),
-                    y: parseInt(value[1]),
+                
+                    dataPoints.push({
+                        x: parseInt(value[0]),
+                        y: parseInt(value[1]),
+                        
                 });
+              
             });
-            chartRemote.data.datasets[0].data = dataPoints;
-            chartRemote.update();
+            //chartRemote.data.datasets[0].data = dataPoints
+            
             setTimeout(function () {
                 updateChart();
             }, 1000);
@@ -247,5 +250,5 @@ chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/char
 
     // Start updating the chart with data
     updateChart();
-
+    console.log(dataPoints)
 })();
