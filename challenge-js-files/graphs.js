@@ -231,6 +231,7 @@ chartCDNScript.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/char
     function updateChart() {
         $.getJSON("/api" + (dataPoints.length + 1) + "&ystart=" + (dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].y : 0) + "&length=1&type=json", function (data) {
             $.each(data, function (key, value) {
+                if (dataPoints.length === 0 || value[0] > dataPoints[dataPoints.length - 1].x) {
                 dataPoints.push({
                     x: parseInt(value[0]),
                     y: parseInt(value[1]),
